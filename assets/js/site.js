@@ -70,7 +70,7 @@ async function games() {
   numEl.textContent = String(target);
   renderGameWord();
 }
-let gameCount = 3;
+let gameCount = 6;
 function renderGameWord() { const w = $('[data-game-word]'); if (w) w.textContent = t(`lib.games.${gameCount === 1 ? 'one' : 'other'}`); }
 
 // ---------- most requested games (public RPC; section stays hidden when unavailable) ----------
