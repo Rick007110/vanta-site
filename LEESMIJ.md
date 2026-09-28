@@ -8,6 +8,7 @@ JavaScript: geen build-stap, geen server-code. Alleen het dashboard laadt `supab
 | Pad | Wat |
 |---|---|
 | `index.html` | landingspagina; downloadknop haalt de nieuwste `Vanta-v*.zip` op via de GitHub-API (valt terug op de releases-pagina) |
+| `privacy/index.html` | privacyverklaring (NL/EN, taal volgt de browser; wisselen bovenaan de pagina) |
 | `admin/index.html` | beheer: inloggen met Discord, tabbladen Meldingen, Aanvragen en Statistieken |
 | `assets/css`, `assets/js`, `assets/fonts`, `assets/img` | stijlen, scripts, lettertypen (Geist, SIL OFL) en logo |
 | `assets/js/config.js` | Supabase-URL en **publishable** key (die mag openbaar zijn) |
@@ -34,7 +35,7 @@ Discord-login zelf staat al aan; daar hoeft niets te veranderen (de callback-URL
 ## Uploaden
 
 1. Pak `vanta-site.zip` uit.
-2. Upload de **inhoud** van de map (dus `index.html`, `robots.txt`, `assets/` en `admin/`) naar de webroot van je
+2. Upload de **inhoud** van de map (dus `index.html`, `robots.txt`, `assets/`, `admin/` en `privacy/`) naar de webroot van je
    hosting (vaak `public_html/` of `www/`) via FTP/SFTP of de bestandsbeheerder van je host. `LEESMIJ.md` hoeft niet mee.
 3. Zorg dat de site via **https** bereikbaar is (Discord-login werkt niet goed zonder).
 4. Open `https://jouwdomein.nl/` en controleer of de downloadknop het versienummer toont.

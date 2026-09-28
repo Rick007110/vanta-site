@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Privacy · Vanta</title>
+  <meta name="description" content="What Vanta stores when you sign in with Discord, what it never stores, who sees what and how to delete your data.">
+  <meta name="theme-color" content="#0A0C10">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="../assets/fonts/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/site.css">
+  <link rel="stylesheet" href="../assets/css/privacy.css">
+  <script type="module" src="../assets/js/privacy.js"></script>
+</head>
+<body>
+  <a class="skip sr-only" href="#main">Skip to content</a>
+
+  <header class="nav is-scrolled">
+    <div class="wrap nav-inner">
+      <a class="brand" href="../" aria-label="Vanta home"><img src="../assets/img/logo.svg" alt="" width="26" height="26">Vanta</a>
+      <nav class="nav-links" aria-label="Sections">
+        <a href="../#features">Features</a>
+        <a href="../#games">Games</a>
+        <a href="../#safety">Safety</a>
+        <a href="../#faq">FAQ</a>
+      </nav>
+      <div class="nav-cta">
+        <a class="icon-link" href="https://github.com/Rick007110/Vanta" rel="noopener" aria-label="Vanta on GitHub"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.33-1.28-1.69-1.28-1.69-1.05-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.26 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5Z"/></svg></a>
+        <a class="btn btn-primary btn-sm" href="https://github.com/Rick007110/Vanta/releases/latest">Download</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="pv">
+    <div class="wrap pv-wrap">
+      <header class="pv-top">
+        <div class="pv-intro">
+          <p class="eyebrow"><span data-lang-only="nl" lang="nl">Privacy</span><span data-lang-only="en">Privacy</span></p>
+          <h1 data-lang-only="nl" lang="nl">Privacy bij community-meldingen</h1>
+          <h1 data-lang-only="en">Privacy and community reports</h1>
+          <p class="pv-lead" data-lang-only="nl" lang="nl">Vanta werkt volledig zonder account. Alleen wie zelf <b>Inloggen met Discord</b> kiest, deelt meldingen met de community.</p>
+          <p class="pv-lead" data-lang-only="en">Vanta works entirely without an account. Only if you choose <b>Sign in with Discord</b> do you share reports with the community.</p>
+        </div>
+        <div class="seg" role="group" aria-label="Language / Taal">
+          <button type="button" data-set-lang="nl" aria-pressed="false" lang="nl">Nederlands</button>
+          <button type="button" data-set-lang="en" aria-pressed="true">English</button>
+        </div>
+      </header>
+
+      <div class="pv-list" data-lang-block="nl" lang="nl">
+        <article class="pv-sec card-surface">
+          <h2 class="pv-head">Wie verwerkt de gegevens</h2>
+          <div class="pv-body">
+            <p>De beheerder van Vanta (Rick007110). Opslag en inloggen gebeuren bij <a href="https://supabase.com/privacy" rel="noopener">Supabase</a> (database en Supabase Auth), als verwerker; het project draait bij voorkeur in een EU-regio. De Discord-bot draait bij een hostingpartij en slaat zelf geen meldingen op.</p>
+          </div>
+        </article>
+        <article class="pv-sec card-surface">
+          <h2 class="pv-head">Wat er wordt opgeslagen als je inlogt</h2>
+          <div class="pv-body">
+            <ul>
+              <li><b>In de Vanta-tabellen:</b> je Discord-gebruikers-ID, weergavenaam en avatar-URL (om je melding aan jou te koppelen en misbruik te kunnen blokkeren). Geen e-mailadres.</li>
+              <li><b>In Supabase Auth</b> (het inlogsysteem): een gebruiker met de gegevens die Discord meegeeft, waaronder je e-mailadres als Discord dat heeft. Supabase vraagt Discord altijd om de scope <code>email</code>; dat is niet uit te zetten. Vanta gebruikt of toont dat e-mailadres nergens. Supabase Auth houdt daarnaast, zoals elk inlogsysteem, tijdstippen van inloggen en per sessie het IP-adres en de browser bij (voor beveiliging).</li>
+              <li><b>Je meldingen:</b> game, cheat, gameversie (een technische vingerafdruk van het game-bestand), Vanta-versie, &ldquo;werkt&rdquo; of &ldquo;werkt niet&rdquo;, je optionele opmerking (max. 300 tekens) en de datum.</li>
+              <li><b>Op je pc:</b> je sessie (een toegangstoken van een uur en een vernieuwingstoken), versleuteld met Windows DPAPI in <code>%LOCALAPPDATA%\Vanta\account.bin</code> (alleen jouw Windows-account kan hem lezen). Uitloggen maakt de sessie ongeldig.</li>
+            </ul>
+          </div>
+        </article>
+        <article class="pv-sec card-surface">
+          <h2 class="pv-head">Wat er niet wordt opgeslagen</h2>
+          <div class="pv-body">
+            <ul>
+              <li><b>Geen Discord-toegangstoken:</b> Vanta vraagt alleen je profiel op via Supabase en bewaart het Discord-token niet.</li>
+              <li><b>Geen IP-adressen in de Vanta-tabellen.</b> Voor rate-limiting wordt kortstondig een hash gebruikt (SHA-256 met een geheime, dagelijks wisselende toevoeging), die binnen enkele uren wordt verwijderd.</li>
+              <li><b>Geen gegevens over je pc</b>, andere programma&rsquo;s of je games buiten de gemelde cheat.</li>
+            </ul>
+          </div>
+        </article>
+        <article class="pv-sec card-surface">
+          <h2 class="pv-head">Wie ziet wat</h2>
+          <div class="pv-body">
+            <ul>
+              <li><b>Iedereen</b> (ook zonder account): per cheat en gameversie alleen de aantallen (&ldquo;12 gebruikers melden: werkt niet&rdquo;).</li>
+              <li><b>Ingelogde gebruikers</b> zien alleen hun eigen meldingen; de database dwingt dat af (row level security).</li>
+              <li><b>De beheerders van het Discord-kanaal:</b> je melding, je opmerking en je Discord-naam.</li>
+            </ul>
+          </div>
+        </article>
+        <article class="pv-sec card-surface">
+          <h2 class="pv-head">Anoniem gebruik delen<span class="count">uit</span></h2>
+          <div class="pv-body">
+            <p>Staat standaard uit. Telt per dag hoe vaak elke cheat is aangezet. Zonder account, naam of IP-adres; alleen dagtotalen per game en cheat. Uitzetten kan altijd in <i>Instellingen</i>.</p>
+          </div>
+        </article>
+        <article class="pv-sec card-surface">
+          <h2 class="pv-head">Verwijderen</h2>
+          <div class="pv-body">
+            <p><i>Instellingen &rarr; Account &rarr; Account verwijderen</i> verwijdert direct je Supabase-account (inclusief het e-mailadres en de sessies in Supabase Auth), je profiel en al je meldingen (gewist, niet geanonimiseerd). Uitloggen verwijdert de sessie van je pc. Losse meldingen trek je in met <i>Niet getest</i> of <i>Standaard</i> in het rechtsklikmenu.</p>
+            <p>Supabase kan technische logboeken en back-ups nog een beperkte tijd bewaren volgens hun eigen bewaartermijnen.</p>
+          </div>
+        </article>
+        <article class="pv-sec card-surface">
+          <h2 class="pv-head">Deze website</h2>
+          <div class="pv-body">
+            <ul>
+              <li>De site wordt gehost via GitHub Pages; GitHub kan daarbij technische gegevens zoals je IP-adres verwerken voor beveiliging en beheer.</li>
+              <li>De site plaatst geen cookies en gebruikt geen trackers of statistieken. Lettertypen worden vanaf deze site zelf geladen.</li>
+              <li>Voor de downloadknop, het aantal games en de meest gevraagde games haalt je browser openbare gegevens op bij GitHub, Supabase en Steam (voor de afbeeldingen). Je browser bewaart die kort in de sessieopslag.</li>
+            </ul>
+          </div>
+        </article>
+      </div>
+      <div class="pv-list" data-lang-block="en">
+        <article class="pv-sec card-surface">
+          <h2 class="pv-head">Who processes the data</h2>
+          <div class="pv-body">
+            <p>The Vanta maintainer (Rick007110). Storage and sign-in run on <a href="https://supabase.com/privacy" rel="noopener">Supabase</a> (database and Supabase Auth) as a processor, preferably in an EU region. The Discord bot runs at a hosting provider and does not store reports itself.</p>
+          </div>
+        </article>
+        <article class="pv-sec card-surface">
+          <h2 class="pv-head">Stored when you sign in</h2>
+          <div class="pv-body">
+            <ul>
+              <li><b>In the Vanta tables:</b> your Discord user ID, display name and avatar URL (to link reports to you and block abuse). No e-mail address.</li>
+              <li><b>In Supabase Auth</b> (the sign-in system): a user with the data Discord provides, including your e-mail address if Discord has one. Supabase always requests the Discord <code>email</code> scope; this cannot be turned off. Vanta never uses or shows that address. Like any sign-in system, Supabase Auth also keeps sign-in times and, per session, the IP address and browser (for security).</li>
+              <li><b>Your reports:</b> game, cheat, game version (a technical fingerprint of the game file), Vanta version, &ldquo;works&rdquo; or &ldquo;broken&rdquo;, your optional comment (max. 300 characters) and the date.</li>
+              <li><b>On your PC:</b> your session (a one-hour access token and a refresh token), encrypted with Windows DPAPI in <code>%LOCALAPPDATA%\Vanta\account.bin</code> (readable only by your Windows account). Signing out invalidates the session.</li>
+            </ul>
+          </div>
+        </article>
+        <article class="pv-sec card-surface">
+          <h2 class="pv-head">Not stored</h2>
+          <div class="pv-body">
+            <ul>
+              <li><b>No Discord access token:</b> Vanta only reads your profile through Supabase and does not keep the Discord token.</li>
+              <li><b>No IP addresses in the Vanta tables.</b> Rate limiting uses a short-lived hash (SHA-256 with a secret, daily rotating salt), deleted within a few hours.</li>
+              <li><b>Nothing about your PC</b>, other programs or your games beyond the reported cheat.</li>
+            </ul>
+          </div>
+        </article>
+        <article class="pv-sec card-surface">
+          <h2 class="pv-head">Who sees what</h2>
+          <div class="pv-body">
+            <ul>
+              <li><b>Everyone</b> (also without an account): only counts per cheat and game version (&ldquo;12 users report: broken&rdquo;).</li>
+              <li><b>Signed-in users</b> only see their own reports; the database enforces this (row level security).</li>
+              <li><b>The maintainers of the Discord channel:</b> your report, your comment and your Discord name.</li>
+            </ul>
+          </div>
+        </article>
+        <article class="pv-sec card-surface">
+          <h2 class="pv-head">Share anonymous usage<span class="count">off</span></h2>
+          <div class="pv-body">
+            <p>Off by default. Counts per day how often each cheat is enabled. No account, name or IP address; daily totals per game and cheat only. You can turn it off in <i>Settings</i> at any time.</p>
+          </div>
+        </article>
+        <article class="pv-sec card-surface">
+          <h2 class="pv-head">Deletion</h2>
+          <div class="pv-body">
+            <p><i>Settings &rarr; Account &rarr; Delete account</i> immediately deletes your Supabase account (including the e-mail address and sessions in Supabase Auth), your profile and all your reports (deleted, not anonymised). Signing out removes the session from your PC. Withdraw a single report with <i>Not tested</i> or <i>Default</i> in the right-click menu.</p>
+            <p>Supabase may keep technical logs and backups for a limited time under its own retention periods.</p>
+          </div>
+        </article>
+        <article class="pv-sec card-surface">
+          <h2 class="pv-head">This website</h2>
+          <div class="pv-body">
+            <ul>
+              <li>The site is hosted on GitHub Pages; GitHub may process technical data such as your IP address for security and operations.</li>
+              <li>The site sets no cookies and uses no trackers or analytics. Fonts are served from this site itself.</li>
+              <li>For the download button, the game count and the most requested games, your browser fetches public data from GitHub, Supabase and Steam (for the images). Your browser keeps it briefly in session storage.</li>
+            </ul>
+          </div>
+        </article>
+      </div>
+
+      <p class="pv-foot"><span data-lang-only="nl" lang="nl">Vragen? Open een issue op <a href="https://github.com/Rick007110/Vanta/issues" rel="noopener">GitHub</a>.</span><span data-lang-only="en">Questions? Open an issue on <a href="https://github.com/Rick007110/Vanta/issues" rel="noopener">GitHub</a>.</span></p>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-inner">
+      <a class="brand" href="../"><img src="../assets/img/logo.svg" alt="" width="22" height="22">Vanta</a>
+      <nav class="footer-links" aria-label="Footer">
+        <a href="https://github.com/Rick007110/Vanta" rel="noopener">GitHub</a>
+        <a href="https://github.com/Rick007110/Vanta/releases" rel="noopener">Releases</a>
+        <a href="./" aria-current="page">Privacy</a>
+        <a href="https://github.com/Rick007110/Vanta/blob/main/LICENSE" rel="noopener">MIT License</a>
+      </nav>
+      <p class="footer-note">© 2026 Rick007110 · Not affiliated with any game publisher or store. For single-player use only.</p>
+    </div>
+  </footer>
+</body>
+</html>

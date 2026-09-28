@@ -15,6 +15,8 @@
   .gate-err { color: #FF9D9D; font-size: .8125rem; }
   .gate-back { color: var(--text-3); font-size: .8125rem; text-decoration: none; margin-block-start: 4px; }
   .gate-back:hover { color: var(--text); }
+  .gate-links { display: flex; gap: 8px; align-items: center; justify-content: center; color: var(--text-3); font-size: .8125rem; margin-block-start: 4px; }
+  .gate-links .gate-back { margin: 0; }
   .gate-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
   .gate code { font-size: .8em; color: var(--text); background: var(--surface-3); padding: 1px 5px; border-radius: 5px; }
   .btn-lg { min-block-size: 44px; padding-inline: 18px; inline-size: 100%; margin-block-start: 6px; font-size: .9375rem; }
