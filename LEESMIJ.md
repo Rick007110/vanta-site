@@ -8,9 +8,10 @@ JavaScript: geen build-stap, geen server-code. Alleen het dashboard laadt `supab
 | Pad | Wat |
 |---|---|
 | `index.html` | landingspagina; downloadknop haalt de nieuwste `Vanta-v*.zip` op via de GitHub-API (valt terug op de releases-pagina) |
-| `privacy/index.html` | privacyverklaring (NL/EN, taal volgt de browser; wisselen bovenaan de pagina) |
+| `privacy/index.html` | privacyverklaring (Engels standaard, Nederlands via de EN/NL-schakelaar) |
 | `admin/index.html` | beheer: inloggen met Discord, tabbladen Meldingen, Aanvragen en Statistieken |
 | `assets/css`, `assets/js`, `assets/fonts`, `assets/img` | stijlen, scripts, lettertypen (Geist, SIL OFL) en logo |
+| `assets/js/i18n.js`, `assets/js/i18n/en.js`, `nl.js` | vertalingen: Engels is overal standaard, Nederlands alleen als de bezoeker NL kiest (onthouden in `localStorage`, sleutel `vanta-lang`); teksten staan per taal in één bestand, elementen verwijzen ernaar met `data-i18n` |
 | `assets/js/config.js` | Supabase-URL en **publishable** key (die mag openbaar zijn) |
 | `robots.txt`, `admin/.htaccess` | houdt `/admin/` uit zoekmachines (naast de `noindex`-metatag) |
 
@@ -47,7 +48,8 @@ Staat de site in een submap (bijv. `jouwdomein.nl/vanta/`)? Dat werkt ook: alle 
 
 ## Beheer in het kort
 
-* **Reports**: gesorteerd op prioriteit; filter op game en status. Knoppen: *Fixed in…* (met Vanta-versie),
+* **Reports**: alleen cheats met minstens één "doesn't work"-melding, per game + cheat samengevoegd met tellers
+  ("3 broken · 5 works"); cheats met alleen "works"-meldingen staan er niet in (Stats telt ze wel mee). Gesorteerd op prioriteit; filter op game en status. Knoppen: *Fixed in…* (met Vanta-versie),
   *Won't fix / can't reproduce*, *Duplicate*, *Reopen*. Onder *reporters* kun je een melder blokkeren. Statuswijzigingen
   gaan ook naar de Discord-bot (die werkt zijn bericht bij).
 * **Requests**: game-aanvragen op aantal stemmen; zet de status (open, planned, in progress, added, rejected) en een

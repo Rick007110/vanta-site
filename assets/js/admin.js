@@ -1,21 +1,19 @@
 // Vanta admin dashboard. Signs in with Discord through Supabase Auth, then only talks to the public.vanta_admin_*
 // functions; the database checks on every call that the signed-in Discord account is an admin.
 import { SUPABASE_URL, SUPABASE_KEY, REPO } from './config.js';
+import { t, lang, onLangChange } from './i18n.js';
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const num = (v) => Number(v || 0).toLocaleString('en-US');
+const num = (v) => Number(v || 0).toLocaleString(lang === 'nl' ? 'nl-NL' : 'en-US');
 const DEMO = new URLSearchParams(location.search).has('demo') && ['localhost', '127.0.0.1'].includes(location.hostname);
 
-const STATUS_LABEL = { open: 'Open', fixed: 'Fixed', cant_reproduce: "Won't fix", duplicate: 'Duplicate' };
-const REQ_LABEL = { open: 'Open', planned: 'Planned', in_progress: 'In progress', added: 'Added', rejected: 'Rejected' };
-const ERRORS = {
-  forbidden: 'This account is not an admin.', not_found: 'Not found (it may have been removed).', invalid_status: 'Invalid status.',
-  invalid_fixed_in_version: 'That version number is not valid (e.g. 0.3.2).', cannot_ban_admin: 'Admins cannot be banned.',
-  user_not_found: 'That user has no Vanta profile.', rate_limited: 'Too many requests, wait a moment.', note_too_long: 'The note is too long (max 500).',
-  name_too_long: 'The name is too long (max 120).', invalid_discord_id: 'Invalid Discord id.',
-};
+const STATUSES = ['open', 'fixed', 'cant_reproduce', 'duplicate'];
+const REQ_STATUSES = ['open', 'planned', 'in_progress', 'added', 'rejected'];
+const statusLabel = (k) => (STATUSES.includes(k) ? t(`ad.s.${k}`) : k);
+const reqLabel = (k) => (REQ_STATUSES.includes(k) ? t(`ad.rs.${k}`) : k);
+const ERRORS = ['forbidden', 'not_found', 'invalid_status', 'invalid_fixed_in_version', 'cannot_ban_admin', 'user_not_found', 'rate_limited', 'note_too_long', 'name_too_long', 'invalid_discord_id'];
 
 let sb = null;
 let me = null;
@@ -26,18 +24,18 @@ function view(name) {
   $$('[data-view]').forEach((el) => { el.hidden = el.dataset.view !== name; });
 }
 function toast(text, kind = 'ok') {
-  const t = document.createElement('div');
-  t.className = `toast ${kind}`; t.textContent = text; t.setAttribute('role', kind === 'err' ? 'alert' : 'status');
-  $('[data-toasts]').append(t);
-  setTimeout(() => t.remove(), kind === 'err' ? 7000 : 3500);
+  const el = document.createElement('div');
+  el.className = `toast ${kind}`; el.textContent = text; el.setAttribute('role', kind === 'err' ? 'alert' : 'status');
+  $('[data-toasts]').append(el);
+  setTimeout(() => el.remove(), kind === 'err' ? 7000 : 3500);
 }
 function errText(e) {
   const code = (e && (e.message || e.code)) || 'error';
-  return ERRORS[code] || code;
+  return ERRORS.includes(code) ? t(`ad.err.${code}`) : code;
 }
 
 // ---------------------------------------------------------------- dialog (confirm / prompt)
-function ask({ title, body = '', ok = 'OK', danger = false, input = null }) {
+function ask({ title, body = '', ok = t('ad.ok'), danger = false, input = null }) {
   const dlg = $('[data-dialog]');
   $('[data-bind=dlg-title]').textContent = title;
   $('[data-bind=dlg-body]').textContent = body;
@@ -96,16 +94,20 @@ async function boot() {
   if (error) {
     if (error.code === 'PGRST202' || /Could not find the function/i.test(error.message || '')) { view('setup'); return; }
     view('setup');
-    $('[data-bind=setup-msg]').textContent = `Could not check admin access: ${error.message || error.code || 'error'}.`;
+    setupMsg(t('ad.setupcheck', { e: error.message || error.code || 'error' }));
     return;
   }
   if (isAdmin !== true) return denied();
   enter();
 }
 
+function setupMsg(text) {
+  const el = $('[data-bind=setup-msg]');
+  el.removeAttribute('data-i18n-html'); el.textContent = text;
+}
 function showLoginError(text) {
   const el = $('[data-bind=login-error]');
-  el.textContent = `Sign-in failed: ${text}`; el.hidden = false;
+  el.textContent = t('ad.signinfail', { e: text }); el.hidden = false;
 }
 
 async function login() {
@@ -163,12 +165,12 @@ $('.tabs').addEventListener('keydown', (e) => {
 
 // ---------------------------------------------------------------- helpers
 const ago = (unix) => {
-  if (!unix) return '—';
+  if (!unix) return t('ad.ago.none');
   const s = Math.max(0, Date.now() / 1000 - unix);
-  if (s < 90) return 'just now';
-  if (s < 3600) return `${Math.round(s / 60)} min ago`;
-  if (s < 86400) return `${Math.round(s / 3600)} h ago`;
-  return `${Math.round(s / 86400)} d ago`;
+  if (s < 90) return t('ad.ago.now');
+  if (s < 3600) return t('ad.ago.min', { n: Math.round(s / 60) });
+  if (s < 86400) return t('ad.ago.h', { n: Math.round(s / 3600) });
+  return t('ad.ago.d', { n: Math.round(s / 86400) });
 };
 const skeleton = (n = 3) => Array.from({ length: n }, () => '<div class="skeleton"></div>').join('');
 const empty = (t) => `<div class="empty">${esc(t)}</div>`;
@@ -188,49 +190,79 @@ async function loadReports() {
     const badge = $('[data-bind=open-count]');
     badge.hidden = !open; badge.textContent = String(open);
     renderReports();
-  } catch (e) { list.innerHTML = empty(`Could not load reports: ${errText(e)}`); }
+  } catch (e) { list.innerHTML = empty(t('ad.loadfail.rep', { e: errText(e) })); }
 }
 function fillGames(games) {
   const sel = $('[data-filter=report-game]'), cur = sel.value;
-  sel.replaceChildren(new Option('All games', ''), ...games.map((g) => new Option(`${g.game_name || g.game_id}${g.open ? ` (${g.open} open)` : ''}`, g.game_id)));
+  sel.replaceChildren(new Option(t('ad.allgames'), ''), ...games.map((g) => new Option(g.open ? t('ad.gameopen', { name: g.game_name || g.game_id, n: g.open }) : (g.game_name || g.game_id), g.game_id)));
   sel.value = games.some((g) => g.game_id === cur) ? cur : '';
+}
+// Only cheats with at least one "doesn't work" report are listed. Report states (one per game version) are grouped per
+// game + cheat; "works" reports only add to the works count of such a group and never become an entry of their own.
+const STATUS_RANK = { open: 0, fixed: 1, cant_reproduce: 2, duplicate: 3 };
+function groupReports(items) {
+  const groups = new Map();
+  for (const s of items) {
+    const key = `${s.game_id}\u0000${s.cheat_id}`;
+    let g = groups.get(key);
+    if (!g) groups.set(key, (g = { key, cheat_id: s.cheat_id, cheat_name: s.cheat_name, game_id: s.game_id, game_name: s.game_name, states: [], broken: 0, works: 0 }));
+    g.states.push(s); g.broken += Number(s.broken) || 0; g.works += Number(s.works) || 0;
+  }
+  return [...groups.values()].filter((g) => g.broken > 0).map((g) => {
+    const bad = g.states.filter((s) => Number(s.broken) > 0);
+    const status = bad.map((s) => s.status).sort((a, b) => (STATUS_RANK[a] ?? 9) - (STATUS_RANK[b] ?? 9))[0];
+    const uniq = (a) => [...new Set(a.filter(Boolean))];
+    return Object.assign(g, {
+      bad, status, score: Math.max(...bad.map((s) => Number(s.score) || 0)),
+      ids: bad.map((s) => Number(s.id)),
+      fixed_in_version: uniq(bad.map((s) => s.fixed_in_version)).join(', '),
+      game_versions: uniq(bad.map((s) => s.game_version)), fingerprints: uniq(bad.map((s) => String(s.fingerprint || '').slice(0, 28))),
+      newest_fingerprint: bad.some((s) => s.newest_fingerprint), vanta_versions: uniq(bad.flatMap((s) => s.vanta_versions || [])),
+      last_report: Math.max(...bad.map((s) => Number(s.last_report) || 0)),
+      notes: bad.flatMap((s) => (s.notes || []).map((n) => Object.assign({ game_version: s.game_version }, n))).sort((a, b) => (b.updated || 0) - (a.updated || 0)),
+      reporters: bad.flatMap((s) => (s.reporters || []).filter((r) => r.status === 'broken').map((r) => Object.assign({ game_version: s.game_version }, r))),
+    });
+  }).sort((a, b) => b.score - a.score || b.broken - a.broken);
 }
 function renderReports() {
   const list = $('[data-list=reports]');
   const q = $('[data-filter=report-q]').value.trim().toLowerCase();
-  const items = (state.reports.items || []).filter((s) => !q || [s.cheat_name, s.cheat_id, s.game_name, s.game_id, ...(s.notes || []).map((n) => n.note)]
+  state.reportGroups = groupReports(state.reports.items || []);
+  const items = state.reportGroups.filter((s) => !q || [s.cheat_name, s.cheat_id, s.game_name, s.game_id, ...s.notes.map((n) => n.note)]
     .some((v) => String(v || '').toLowerCase().includes(q)));
-  if (!items.length) { list.innerHTML = empty(q ? 'No reports match your search.' : 'Nothing here. 🎉'); return; }
+  if (!items.length) { list.innerHTML = empty(q ? t('ad.empty.search') : t('ad.empty.rep')); return; }
   list.innerHTML = items.map((s) => {
     const hot = s.status === 'open' && Number(s.score) >= 1;
-    const reporters = s.reporters || [];
-    return `<article class="rcard" data-status="${esc(s.status)}"${hot ? ' data-hot' : ''} data-id="${Number(s.id)}">
+    const reporters = s.reporters;
+    const multi = s.game_versions.length > 1;
+    return `<article class="rcard" data-status="${esc(s.status)}"${hot ? ' data-hot' : ''} data-key="${esc(s.key)}" data-id="${s.ids[0]}">
       <div class="rhead">
-        <div class="score${hot ? ' hot' : ''}" title="Priority score"><span>${esc(Number(s.score || 0).toFixed(1))}<small>score</small></span></div>
+        <div class="score${hot ? ' hot' : ''}" title="${esc(t('ad.score.t'))}"><span>${esc(Number(s.score || 0).toFixed(1))}<small>${esc(t('ad.score'))}</small></span></div>
         <div class="rtitle">
           <h3>${esc(s.cheat_name || s.cheat_id)}</h3>
-          <p>${esc(s.game_name || s.game_id)}${s.game_version ? ` · ${esc(s.game_version)}` : ''}</p>
+          <p>${esc(s.game_name || s.game_id)}${s.game_versions.length ? ` · ${esc(s.game_versions.join(', '))}` : ''}</p>
+          <p class="rcount"><b class="bad">${esc(t('ad.broken', { n: num(s.broken) }))}</b><span aria-hidden="true"> · </span><b class="good">${esc(t('ad.works', { n: num(s.works) }))}</b></p>
           <div class="chips">
-            <span class="chip bad">${num(s.broken)} doesn't work</span><span class="chip good">${num(s.works)} works</span>
-            ${s.newest_fingerprint ? '<span class="chip">newest game version</span>' : ''}
-            ${(s.vanta_versions || []).length ? `<span class="chip">Vanta ${esc(s.vanta_versions.join(', '))}</span>` : ''}
-            <span class="chip">last report ${esc(ago(s.last_report))}</span>
-            <span class="chip mono" title="Game version fingerprint">${esc(String(s.fingerprint || '').slice(0, 28))}</span>
+            ${s.newest_fingerprint ? `<span class="chip">${esc(t('ad.newest'))}</span>` : ''}
+            ${multi ? `<span class="chip">${esc(t('ad.versions', { n: s.game_versions.length }))}</span>` : ''}
+            ${s.vanta_versions.length ? `<span class="chip">${esc(t('ad.vanta', { v: s.vanta_versions.join(', ') }))}</span>` : ''}
+            <span class="chip">${esc(t('ad.last', { t: ago(s.last_report) }))}</span>
+            ${s.fingerprints.map((f) => `<span class="chip mono" title="${esc(t('ad.fp'))}">${esc(f)}</span>`).join('')}
           </div>
         </div>
-        <span class="status" data-s="${esc(s.status)}">${esc(STATUS_LABEL[s.status] || s.status)}${s.status === 'fixed' && s.fixed_in_version ? ` · ${esc(s.fixed_in_version)}` : ''}</span>
+        <span class="status" data-s="${esc(s.status)}">${esc(statusLabel(s.status))}${s.status === 'fixed' && s.fixed_in_version ? ` · ${esc(s.fixed_in_version)}` : ''}</span>
       </div>
-      ${(s.notes || []).length ? `<div class="notes">${s.notes.map((n) => `<blockquote>${esc(n.note)}<span>Vanta ${esc(n.vanta_version)} · ${esc(ago(n.updated))}</span></blockquote>`).join('')}</div>` : ''}
+      ${s.notes.length ? `<div class="notes">${s.notes.map((n) => `<blockquote>${esc(n.note)}<span>Vanta ${esc(n.vanta_version)}${multi && n.game_version ? ` · ${esc(n.game_version)}` : ''} · ${esc(ago(n.updated))}</span></blockquote>`).join('')}</div>` : ''}
       <div class="ractions">
-        ${s.status !== 'fixed' ? '<button class="btn btn-sm btn-primary" type="button" data-act="fixed">✓ Fixed in…</button>' : ''}
-        ${s.status !== 'cant_reproduce' ? '<button class="btn btn-sm" type="button" data-act="cant_reproduce">Won\'t fix / can\'t reproduce</button>' : ''}
-        ${s.status !== 'duplicate' ? '<button class="btn btn-sm" type="button" data-act="duplicate">Duplicate</button>' : ''}
-        ${s.status !== 'open' ? '<button class="btn btn-sm" type="button" data-act="open">↺ Reopen</button>' : ''}
+        ${s.status !== 'fixed' ? `<button class="btn btn-sm btn-primary" type="button" data-act="fixed">${esc(t('ad.a.fixed'))}</button>` : ''}
+        ${s.status !== 'cant_reproduce' ? `<button class="btn btn-sm" type="button" data-act="cant_reproduce">${esc(t('ad.a.cnr'))}</button>` : ''}
+        ${s.status !== 'duplicate' ? `<button class="btn btn-sm" type="button" data-act="duplicate">${esc(t('ad.a.dup'))}</button>` : ''}
+        ${s.status !== 'open' ? `<button class="btn btn-sm" type="button" data-act="open">${esc(t('ad.a.reopen'))}</button>` : ''}
       </div>
-      ${reporters.length ? `<details class="reporters"><summary>${reporters.length} reporter${reporters.length === 1 ? '' : 's'}</summary><ul>${reporters.map((r) => `
-        <li><span class="who">${esc(r.username)}</span><span class="id">${esc(r.discord_id || 'no Discord id')}</span>
-          <span class="chip ${r.status === 'broken' ? 'bad' : 'good'}">${r.status === 'broken' ? "doesn't work" : 'works'}</span><span class="id">${esc(ago(r.updated))}</span>
-          ${r.discord_id ? `<button class="btn btn-sm btn-danger" type="button" data-ban="${esc(r.discord_id)}" data-name="${esc(r.username)}">Ban</button>` : ''}
+      ${reporters.length ? `<details class="reporters"><summary>${esc(t(reporters.length === 1 ? 'ad.reporters.one' : 'ad.reporters.other', { n: reporters.length }))}</summary><ul>${reporters.map((r) => `
+        <li><span class="who">${esc(r.username)}</span><span class="id">${esc(r.discord_id || t('ad.nodiscord'))}</span>
+          <span class="chip bad">${esc(t('ad.doesnt'))}</span>${multi && r.game_version ? `<span class="id">${esc(r.game_version)}</span>` : ''}<span class="id">${esc(ago(r.updated))}</span>
+          ${r.discord_id ? `<button class="btn btn-sm btn-danger" type="button" data-ban="${esc(r.discord_id)}" data-name="${esc(r.username)}">${esc(t('ad.ban'))}</button>` : ''}
           ${r.note ? `<span class="note">${esc(r.note)}</span>` : ''}</li>`).join('')}</ul></details>` : ''}
     </article>`;
   }).join('');
@@ -238,23 +270,25 @@ function renderReports() {
 $('[data-list=reports]').addEventListener('click', async (e) => {
   const act = e.target.closest('[data-act]'), ban = e.target.closest('[data-ban]');
   if (act) {
-    const card = act.closest('[data-id]'), id = Number(card.dataset.id), status = act.dataset.act;
-    const s = (state.reports.items || []).find((x) => Number(x.id) === id);
+    const card = act.closest('[data-key]'), status = act.dataset.act;
+    const s = (state.reportGroups || []).find((x) => x.key === card.dataset.key);
+    if (!s) return;
     let version = null;
     if (status === 'fixed') {
-      version = await ask({ title: `Mark “${s ? s.cheat_name || s.cheat_id : 'cheat'}” fixed`, body: 'Reports from this Vanta version on count again; a new “doesn\'t work” report from it reopens the issue. Leave empty if there is no version.', ok: 'Mark fixed', input: { label: 'Fixed in Vanta version', value: state.latestVersion, placeholder: '0.3.2' } });
+      version = await ask({ title: t('ad.fix.title', { name: s.cheat_name || s.cheat_id }), body: t('ad.fix.body'), ok: t('ad.fix.ok'), input: { label: t('ad.fix.label'), value: state.latestVersion, placeholder: '0.3.2' } });
       if (version === null) return;
     }
     act.disabled = true;
     try {
-      await rpc('vanta_admin_set_report_status', { p_state_id: id, p_status: status, p_fixed_in_version: version || null });
-      toast(status === 'open' ? 'Reopened.' : `Marked ${STATUS_LABEL[status].toLowerCase()}${version ? ` in ${version}` : ''}.`);
+      // one status for the whole cheat: apply it to every game-version state that has "doesn't work" reports
+      for (const id of s.ids) await rpc('vanta_admin_set_report_status', { p_state_id: id, p_status: status, p_fixed_in_version: version || null });
+      toast(status === 'open' ? t('ad.reopened') : version ? t('ad.markedin', { s: statusLabel(status).toLowerCase(), v: version }) : t('ad.marked', { s: statusLabel(status).toLowerCase() }));
       loadReports();
-    } catch (err) { act.disabled = false; toast(errText(err), 'err'); }
+    } catch (err) { act.disabled = false; toast(errText(err), 'err'); loadReports(); }
   } else if (ban) {
-    const ok = await ask({ title: `Ban ${ban.dataset.name}?`, body: 'Their reports and votes stop counting, they can no longer report or vote, and their sessions end. You can unban them under Stats.', ok: 'Ban user', danger: true });
+    const ok = await ask({ title: t('ad.ban.title', { name: ban.dataset.name }), body: t('ad.ban.body'), ok: t('ad.ban.ok'), danger: true });
     if (!ok) return;
-    try { await rpc('vanta_admin_ban', { p_discord_id: ban.dataset.ban, p_banned: true }); toast(`${ban.dataset.name} is banned.`); loadReports(); state.statsRendered = false; }
+    try { await rpc('vanta_admin_ban', { p_discord_id: ban.dataset.ban, p_banned: true }); toast(t('ad.banned', { name: ban.dataset.name })); loadReports(); state.statsRendered = false; }
     catch (err) { toast(errText(err), 'err'); }
   }
 });
@@ -266,26 +300,26 @@ async function loadRequests() {
   try {
     state.requests = await rpc('vanta_admin_requests', { p_status: $('[data-filter=request-status]').value, p_limit: 300 });
     renderRequests();
-  } catch (e) { list.innerHTML = empty(`Could not load requests: ${errText(e)}`); }
+  } catch (e) { list.innerHTML = empty(t('ad.loadfail.req', { e: errText(e) })); }
 }
 function renderRequests() {
   const list = $('[data-list=requests]');
   const q = $('[data-filter=request-q]').value.trim().toLowerCase();
   const items = (state.requests.items || []).filter((r) => !q || String(r.name).toLowerCase().includes(q) || String(r.appid) === q);
-  if (!items.length) { list.innerHTML = empty(q ? 'No requests match your search.' : 'No requests yet.'); return; }
+  if (!items.length) { list.innerHTML = empty(q ? t('ad.req.empty.search') : t('ad.req.empty')); return; }
   list.innerHTML = items.map((r) => `<article class="qrow" data-appid="${Number(r.appid)}">
       <div class="qcover"><img src="${esc(coverUrl(r))}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()"></div>
       <div class="qmain">
-        <h3>${esc(r.name)} <span class="status" data-s="${esc(r.status)}">${esc(REQ_LABEL[r.status] || r.status)}</span>
-          <a href="https://store.steampowered.com/app/${Number(r.appid)}/" target="_blank" rel="noopener noreferrer">app ${Number(r.appid)} ↗</a></h3>
-        <p>Requested ${esc(ago(r.created))}${r.requested_by ? ` by ${esc(r.requested_by.username)}${r.requested_by.banned ? ' (banned)' : ''}` : ''}${r.votes_all !== r.votes ? ` · ${num(r.votes_all - r.votes)} vote(s) from banned users not counted` : ''}</p>
+        <h3>${esc(r.name)} <span class="status" data-s="${esc(r.status)}">${esc(reqLabel(r.status))}</span>
+          <a href="https://store.steampowered.com/app/${Number(r.appid)}/" target="_blank" rel="noopener noreferrer">${esc(t('ad.req.app', { id: Number(r.appid) }))}</a></h3>
+        <p>${esc(t('ad.req.requested', { t: ago(r.created) }))}${r.requested_by ? esc(t('ad.req.by', { name: r.requested_by.username }) + (r.requested_by.banned ? t('ad.req.bannedtag') : '')) : ''}${r.votes_all !== r.votes ? esc(t('ad.req.bannedvotes', { n: num(r.votes_all - r.votes) })) : ''}</p>
         <div class="qedit">
-          <select data-field="status" aria-label="Status">${Object.entries(REQ_LABEL).map(([k, v]) => `<option value="${k}"${k === r.status ? ' selected' : ''}>${v}</option>`).join('')}</select>
-          <textarea data-field="note" maxlength="500" rows="1" placeholder="Note for players (optional)" aria-label="Note for players">${esc(r.note || '')}</textarea>
-          <div class="ractions"><button class="btn btn-sm btn-primary" type="button" data-req="save">Save</button><button class="btn btn-sm btn-danger" type="button" data-req="delete" aria-label="Delete request">Delete</button></div>
+          <select data-field="status" aria-label="${esc(t('ad.req.status'))}">${REQ_STATUSES.map((k) => `<option value="${k}"${k === r.status ? ' selected' : ''}>${esc(reqLabel(k))}</option>`).join('')}</select>
+          <textarea data-field="note" maxlength="500" rows="1" placeholder="${esc(t('ad.req.note.ph'))}" aria-label="${esc(t('ad.req.note'))}">${esc(r.note || '')}</textarea>
+          <div class="ractions"><button class="btn btn-sm btn-primary" type="button" data-req="save">${esc(t('ad.save'))}</button><button class="btn btn-sm btn-danger" type="button" data-req="delete" aria-label="${esc(t('ad.delete.aria'))}">${esc(t('ad.delete'))}</button></div>
         </div>
       </div>
-      <div class="qvotes"><b>${num(r.votes)}</b><span>votes · +${num(r.votes_7d)} this week</span></div>
+      <div class="qvotes"><b>${num(r.votes)}</b><span>${esc(t('ad.req.votes', { n: num(r.votes_7d) }))}</span></div>
     </article>`).join('');
 }
 $('[data-list=requests]').addEventListener('click', async (e) => {
@@ -293,15 +327,15 @@ $('[data-list=requests]').addEventListener('click', async (e) => {
   const row = b.closest('[data-appid]'), appid = Number(row.dataset.appid);
   const r = (state.requests.items || []).find((x) => Number(x.appid) === appid) || {};
   if (b.dataset.req === 'delete') {
-    const ok = await ask({ title: `Delete “${r.name}”?`, body: 'The request and all its votes are removed. Use “Rejected” instead if players should see why.', ok: 'Delete', danger: true });
+    const ok = await ask({ title: t('ad.del.title', { name: r.name }), body: t('ad.del.body'), ok: t('ad.delete'), danger: true });
     if (!ok) return;
-    try { await rpc('vanta_admin_delete_request', { p_appid: appid }); toast('Request deleted.'); loadRequests(); } catch (err) { toast(errText(err), 'err'); }
+    try { await rpc('vanta_admin_delete_request', { p_appid: appid }); toast(t('ad.deleted')); loadRequests(); } catch (err) { toast(errText(err), 'err'); }
     return;
   }
   b.disabled = true;
   try {
     await rpc('vanta_admin_set_request', { p_appid: appid, p_status: $('[data-field=status]', row).value, p_note: $('[data-field=note]', row).value });
-    toast(`Saved “${r.name}”.`); loadRequests();
+    toast(t('ad.saved', { name: r.name })); loadRequests();
   } catch (err) { b.disabled = false; toast(errText(err), 'err'); }
 });
 
@@ -313,7 +347,7 @@ async function loadStats(quiet = false) {
     const [st, banned] = await Promise.all([rpc('vanta_admin_stats', { p_days: Number($('[data-filter=stats-days]').value) }), rpc('vanta_admin_banned')]);
     state.stats = st; state.banned = banned.items || [];
     renderStats(); state.statsRendered = true;
-  } catch (e) { if (!quiet) box.innerHTML = empty(`Could not load stats: ${errText(e)}`); }
+  } catch (e) { if (!quiet) box.innerHTML = empty(t('ad.loadfail.stats', { e: errText(e) })); }
 }
 function renderStats() {
   const s = state.stats, d = s.days;
@@ -323,38 +357,38 @@ function renderStats() {
   const h = (v) => `${Math.round((v / max) * 100)}%`;
   $('[data-list=stats]').innerHTML = `
     <div class="kpis">
-      ${k(s.users, 'players signed in', true)}${k(s.new_users, `new in ${d} days`)}${k(s.reports_period, `reports in ${d} days`)}${k(s.broken_period, `"doesn't work" in ${d} days`)}
-      ${k(s.open, 'open issues', true)}${k(s.fixed_period, `fixed in ${d} days`)}${k(s.usage_period, `cheats enabled (anonymous, ${d} d)`)}
-      ${k(s.requests_active, 'active game requests', true)}${k(s.votes_period, `request votes in ${d} days`)}${k(s.banned, 'banned users')}
+      ${k(s.users, t('ad.k.users'), true)}${k(s.new_users, t('ad.k.new', { d }))}${k(s.reports_period, t('ad.k.reports', { d }))}${k(s.broken_period, t('ad.k.broken', { d }))}
+      ${k(s.open, t('ad.k.open'), true)}${k(s.fixed_period, t('ad.k.fixed', { d }))}${k(s.usage_period, t('ad.k.usage', { d }))}
+      ${k(s.requests_active, t('ad.k.reqs'), true)}${k(s.votes_period, t('ad.k.votes', { d }))}${k(s.banned, t('ad.k.banned'))}
     </div>
     <div class="stats-grid">
       <div class="box">
-        <h3>Last 14 days</h3>
-        <div class="legend"><span><i style="background:var(--c-reports)"></i>reports</span><span><i style="background:var(--c-broken)"></i>doesn't work</span><span><i style="background:var(--c-votes)"></i>request votes</span></div>
-        <div class="chart" aria-hidden="true">${daily.map((x) => `<div class="bar" title="${esc(x.day)}: ${x.reports} reports, ${x.broken} doesn't work, ${x.votes} votes"><i class="r" style="block-size:${h(x.reports)};--b:${x.reports ? Math.round((x.broken / x.reports) * 100) : 0}%"></i><i class="v" style="block-size:${h(x.votes)}"></i></div>`).join('')}</div>
+        <h3>${esc(t('ad.chart.h'))}</h3>
+        <div class="legend"><span><i style="background:var(--c-reports)"></i>${esc(t('ad.chart.reports'))}</span><span><i style="background:var(--c-broken)"></i>${esc(t('ad.chart.broken'))}</span><span><i style="background:var(--c-votes)"></i>${esc(t('ad.chart.votes'))}</span></div>
+        <div class="chart" aria-hidden="true">${daily.map((x) => `<div class="bar" title="${esc(t('ad.chart.tip', { day: x.day, r: x.reports, b: x.broken, v: x.votes }))}"><i class="r" style="block-size:${h(x.reports)};--b:${x.reports ? Math.round((x.broken / x.reports) * 100) : 0}%"></i><i class="v" style="block-size:${h(x.votes)}"></i></div>`).join('')}</div>
         <div class="chart-x" aria-hidden="true">${daily.map((x) => `<span>${esc(String(x.day).slice(8, 10))}</span>`).join('')}</div>
-        <table class="sr-only"><caption>Daily activity</caption><thead><tr><th>Day</th><th>Reports</th><th>Doesn't work</th><th>Votes</th></tr></thead>
+        <table class="sr-only"><caption>${esc(t('ad.chart.cap'))}</caption><thead><tr><th>${esc(t('ad.th.day'))}</th><th>${esc(t('ad.th.reports'))}</th><th>${esc(t('ad.th.broken'))}</th><th>${esc(t('ad.th.votes'))}</th></tr></thead>
           <tbody>${daily.map((x) => `<tr><td>${esc(x.day)}</td><td>${x.reports}</td><td>${x.broken}</td><td>${x.votes}</td></tr>`).join('')}</tbody></table>
       </div>
       <div class="box">
-        <h3>Top requests</h3>
-        ${(s.top_requests || []).length ? `<table><thead><tr><th>Game</th><th class="num">Votes</th><th class="num">7 d</th></tr></thead><tbody>${s.top_requests.map((r) => `<tr><td>${esc(r.name)}</td><td class="num">${num(r.votes)}</td><td class="num">+${num(r.votes_7d)}</td></tr>`).join('')}</tbody></table>` : '<p class="muted">No requests yet.</p>'}
+        <h3>${esc(t('ad.top.h'))}</h3>
+        ${(s.top_requests || []).length ? `<table><thead><tr><th>${esc(t('ad.th.game'))}</th><th class="num">${esc(t('ad.th.votes'))}</th><th class="num">${esc(t('ad.th.7d'))}</th></tr></thead><tbody>${s.top_requests.map((r) => `<tr><td>${esc(r.name)}</td><td class="num">${num(r.votes)}</td><td class="num">+${num(r.votes_7d)}</td></tr>`).join('')}</tbody></table>` : `<p class="muted">${esc(t('ad.none.req'))}</p>`}
       </div>
       <div class="box span">
-        <h3>Per game</h3>
-        ${(s.games || []).length ? `<div class="table-scroll"><table><thead><tr><th>Game</th><th class="num">Open issues</th><th class="num">Reports (${d} d)</th><th class="num">Cheats enabled (${d} d)</th></tr></thead><tbody>${s.games.map((g) => `<tr><td>${esc(g.game_name || g.game_id)}</td><td class="num">${num(g.open)}</td><td class="num">${num(g.reports_period)}</td><td class="num">${num(g.usage_period)}</td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">No reports yet.</p>'}
+        <h3>${esc(t('ad.pg.h'))}</h3>
+        ${(s.games || []).length ? `<div class="table-scroll"><table><thead><tr><th>${esc(t('ad.th.game'))}</th><th class="num">${esc(t('ad.th.open'))}</th><th class="num">${esc(t('ad.th.repd', { d }))}</th><th class="num">${esc(t('ad.th.used', { d }))}</th></tr></thead><tbody>${s.games.map((g) => `<tr><td>${esc(g.game_name || g.game_id)}</td><td class="num">${num(g.open)}</td><td class="num">${num(g.reports_period)}</td><td class="num">${num(g.usage_period)}</td></tr>`).join('')}</tbody></table></div>` : `<p class="muted">${esc(t('ad.none.rep'))}</p>`}
       </div>
       <div class="box span">
-        <h3>Banned users</h3>
-        ${state.banned.length ? `<div class="table-scroll"><table><thead><tr><th>User</th><th>Discord id</th><th>Since</th><th></th></tr></thead><tbody>${state.banned.map((b) => `<tr><td>${esc(b.username)}</td><td class="mono">${esc(b.discord_id || '—')}</td><td>${esc(ago(b.since))}</td><td class="num">${b.discord_id ? `<button class="btn btn-sm" type="button" data-unban="${esc(b.discord_id)}" data-name="${esc(b.username)}">Unban</button>` : ''}</td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">Nobody is banned.</p>'}
+        <h3>${esc(t('ad.ban.h'))}</h3>
+        ${state.banned.length ? `<div class="table-scroll"><table><thead><tr><th>${esc(t('ad.th.user'))}</th><th>${esc(t('ad.th.discord'))}</th><th>${esc(t('ad.th.since'))}</th><th></th></tr></thead><tbody>${state.banned.map((b) => `<tr><td>${esc(b.username)}</td><td class="mono">${esc(b.discord_id || '—')}</td><td>${esc(ago(b.since))}</td><td class="num">${b.discord_id ? `<button class="btn btn-sm" type="button" data-unban="${esc(b.discord_id)}" data-name="${esc(b.username)}">${esc(t('ad.unban'))}</button>` : ''}</td></tr>`).join('')}</tbody></table></div>` : `<p class="muted">${esc(t('ad.none.ban'))}</p>`}
       </div>
     </div>`;
 }
 $('[data-list=stats]').addEventListener('click', async (e) => {
   const b = e.target.closest('[data-unban]'); if (!b) return;
-  const ok = await ask({ title: `Unban ${b.dataset.name}?`, body: 'They can report and vote again, and their earlier reports count again.', ok: 'Unban' });
+  const ok = await ask({ title: t('ad.unban.title', { name: b.dataset.name }), body: t('ad.unban.body'), ok: t('ad.unban') });
   if (!ok) return;
-  try { await rpc('vanta_admin_ban', { p_discord_id: b.dataset.unban, p_banned: false }); toast(`${b.dataset.name} is unbanned.`); loadStats(); } catch (err) { toast(errText(err), 'err'); }
+  try { await rpc('vanta_admin_ban', { p_discord_id: b.dataset.unban, p_banned: false }); toast(t('ad.unbanned', { name: b.dataset.name })); loadStats(); } catch (err) { toast(errText(err), 'err'); }
 });
 
 // ---------------------------------------------------------------- wiring
@@ -376,13 +410,19 @@ $('[data-filter=report-q]').addEventListener('input', () => state.reports && ren
 $('[data-filter=request-status]').addEventListener('change', loadRequests);
 $('[data-filter=request-q]').addEventListener('input', () => state.requests && renderRequests());
 $('[data-filter=stats-days]').addEventListener('change', () => loadStats());
+// language switch: re-render whatever is already loaded (English is the default, Dutch only when picked)
+onLangChange(() => {
+  if (state.reports) { fillGames(state.reports.games || []); renderReports(); }
+  if (state.requests) renderRequests();
+  if (state.stats && state.statsRendered) renderStats();
+});
 
 // ---------------------------------------------------------------- local preview data (?demo=1 on localhost only)
 function demoRpc(fn) {
   const now = Math.floor(Date.now() / 1000);
   const rep = (id, cheat, game, score, broken, works, status, notes = []) => ({ id, cheat_id: cheat.toLowerCase().replace(/\W+/g, '_'), cheat_name: cheat, game_id: 'demo-' + game.toLowerCase().replace(/\W+/g, '-'), game_name: game, game_version: 'build 1.4.2', fingerprint: 'sha1:9f2c41d0a7be', status, fixed_in_version: status === 'fixed' ? '0.3.2' : null, score, broken, works, newest_fingerprint: id < 3, vanta_versions: ['0.3.1'], last_report: now - id * 5400, notes: notes.map((n, i) => ({ note: n, vanta_version: '0.3.1', updated: now - (i + 1) * 7200 })), reporters: [{ username: 'player_one', discord_id: '400000000000000011', status: 'broken', updated: now - 3600, note: notes[0] || null }, { username: 'nightowl', discord_id: '400000000000000012', status: 'works', updated: now - 86000, note: null }] });
   const data = {
-    vanta_admin_reports: { items: [rep(1, 'Infinite ammo', 'Demo Shooter', 4.8, 6, 1, 'open', ['Ammo still drops after the latest patch', 'Crashes when reloading']), rep(2, 'God mode', 'Demo Shooter', 2.1, 3, 2, 'open', ['Fall damage still kills']), rep(3, 'Money multiplier', 'Demo RPG', 0.7, 1, 4, 'open')], games: [{ game_id: 'demo-shooter', game_name: 'Demo Shooter', open: 2 }, { game_id: 'demo-rpg', game_name: 'Demo RPG', open: 1 }], counts: { open: 3, fixed: 5 } },
+    vanta_admin_reports: { items: [rep(1, 'Infinite ammo', 'Demo Shooter', 4.8, 6, 1, 'open', ['Ammo still drops after the latest patch', 'Crashes when reloading']), rep(2, 'God mode', 'Demo Shooter', 2.1, 3, 2, 'open', ['Fall damage still kills']), rep(3, 'Money multiplier', 'Demo RPG', 0.7, 1, 4, 'open'), rep(4, 'Infinite ammo', 'Demo Shooter', 0.9, 1, 3, 'open', ['Only the pistol still loses ammo']), rep(5, 'No reload', 'Demo Shooter', 0, 0, 7, 'open')], games: [{ game_id: 'demo-shooter', game_name: 'Demo Shooter', open: 2 }, { game_id: 'demo-rpg', game_name: 'Demo RPG', open: 1 }], counts: { open: 3, fixed: 5 } },
     vanta_admin_requests: { items: [
       { appid: 1245620, name: 'Example Request One', status: 'planned', note: 'Next up after the current update', votes: 42, votes_7d: 9, votes_all: 42, created: now - 86400 * 12, requested_by: { username: 'player_one', banned: false } },
       { appid: 1091500, name: 'Example Request Two', status: 'open', note: null, votes: 17, votes_7d: 4, votes_all: 18, created: now - 86400 * 5, requested_by: { username: 'nightowl', banned: false } },
@@ -396,4 +436,4 @@ function demoRpc(fn) {
   return Promise.resolve(data[fn] || { ok: true });
 }
 
-boot().catch((e) => { view('setup'); $('[data-bind=setup-msg]').textContent = `Something went wrong while starting: ${e && e.message ? e.message : e}`; });
+boot().catch((e) => { view('setup'); setupMsg(t('ad.startfail', { e: e && e.message ? e.message : e })); });
