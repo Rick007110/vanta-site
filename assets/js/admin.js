@@ -182,19 +182,40 @@ async function loadReports() {
   const list = $('[data-list=reports]');
   list.innerHTML = skeleton();
   try {
-    state.reports = await rpc('vanta_admin_reports', {
-      p_game: $('[data-filter=report-game]').value || null, p_status: $('[data-filter=report-status]').value, p_limit: 200,
-    });
-    fillGames(state.reports.games || []);
-    const open = (state.reports.counts || {}).open || 0;
-    const badge = $('[data-bind=open-count]');
-    badge.hidden = !open; badge.textContent = String(open);
+    const game = $('[data-filter=report-game]').value || null, status = $('[data-filter=report-status]').value;
+    const data = await rpc('vanta_admin_reports', { p_game: game, p_status: status, p_limit: 200 });
+    state.reports = data;
     renderReports();
+    await openCounts(data, !game && status === 'open');
+    fillGames(data.games || []);
   } catch (e) { list.innerHTML = empty(t('ad.loadfail.rep', { e: errText(e) })); }
 }
+// Badge and per-game "open" numbers count the same entries as the default list (status Open, all games): one per
+// game + cheat with at least one "doesn't work" report. Raw report states (works-only states, one per game version)
+// are not counted. Databases without the 'open_cheats' field get the numbers from the default list itself.
+async function openCounts(data, isDefault) {
+  if (typeof data.open_cheats === 'number') {
+    state.openTotal = data.open_cheats;
+    state.openByGame = Object.fromEntries((data.games || []).map((g) => [g.game_id, Number(g.open) || 0]));
+  } else {
+    let def = isDefault ? data : null;
+    if (!def) { try { def = await rpc('vanta_admin_reports', { p_game: null, p_status: 'open', p_limit: 500 }); } catch { def = null; } }
+    if (def) {
+      const open = groupReports(def.items || []).filter((g) => g.status === 'open');
+      state.openTotal = open.length;
+      state.openByGame = {};
+      for (const g of open) state.openByGame[g.game_id] = (state.openByGame[g.game_id] || 0) + 1;
+    }
+  }
+  const badge = $('[data-bind=open-count]'), n = state.openTotal || 0;
+  badge.hidden = !n; badge.textContent = String(n);
+}
 function fillGames(games) {
-  const sel = $('[data-filter=report-game]'), cur = sel.value;
-  sel.replaceChildren(new Option(t('ad.allgames'), ''), ...games.map((g) => new Option(g.open ? t('ad.gameopen', { name: g.game_name || g.game_id, n: g.open }) : (g.game_name || g.game_id), g.game_id)));
+  const sel = $('[data-filter=report-game]'), cur = sel.value, by = state.openByGame || {};
+  sel.replaceChildren(new Option(t('ad.allgames'), ''), ...games.map((g) => {
+    const name = g.game_name || g.game_id, n = by[g.game_id] || 0;
+    return new Option(n ? t('ad.gameopen', { name, n }) : name, g.game_id);
+  }));
   sel.value = games.some((g) => g.game_id === cur) ? cur : '';
 }
 // Only cheats with at least one "doesn't work" report are listed. Report states (one per game version) are grouped per
@@ -203,7 +224,7 @@ const STATUS_RANK = { open: 0, fixed: 1, cant_reproduce: 2, duplicate: 3 };
 function groupReports(items) {
   const groups = new Map();
   for (const s of items) {
-    const key = `${s.game_id}\u0000${s.cheat_id}`;
+    const key = `${s.game_id}/${s.cheat_id}`; // ids are [a-z0-9_-], so '/' cannot clash
     let g = groups.get(key);
     if (!g) groups.set(key, (g = { key, cheat_id: s.cheat_id, cheat_name: s.cheat_name, game_id: s.game_id, game_name: s.game_name, states: [], broken: 0, works: 0 }));
     g.states.push(s); g.broken += Number(s.broken) || 0; g.works += Number(s.works) || 0;
@@ -271,8 +292,8 @@ $('[data-list=reports]').addEventListener('click', async (e) => {
   const act = e.target.closest('[data-act]'), ban = e.target.closest('[data-ban]');
   if (act) {
     const card = act.closest('[data-key]'), status = act.dataset.act;
-    const s = (state.reportGroups || []).find((x) => x.key === card.dataset.key);
-    if (!s) return;
+    const s = card && (state.reportGroups || []).find((x) => x.key === card.dataset.key);
+    if (!s || !s.ids.length) { toast(t('ad.err.stale'), 'err'); loadReports(); return; }
     let version = null;
     if (status === 'fixed') {
       version = await ask({ title: t('ad.fix.title', { name: s.cheat_name || s.cheat_id }), body: t('ad.fix.body'), ok: t('ad.fix.ok'), input: { label: t('ad.fix.label'), value: state.latestVersion, placeholder: '0.3.2' } });
@@ -284,7 +305,7 @@ $('[data-list=reports]').addEventListener('click', async (e) => {
       for (const id of s.ids) await rpc('vanta_admin_set_report_status', { p_state_id: id, p_status: status, p_fixed_in_version: version || null });
       toast(status === 'open' ? t('ad.reopened') : version ? t('ad.markedin', { s: statusLabel(status).toLowerCase(), v: version }) : t('ad.marked', { s: statusLabel(status).toLowerCase() }));
       loadReports();
-    } catch (err) { act.disabled = false; toast(errText(err), 'err'); loadReports(); }
+    } catch (err) { act.disabled = false; toast(t('ad.actfail', { e: errText(err) }), 'err'); loadReports(); }
   } else if (ban) {
     const ok = await ask({ title: t('ad.ban.title', { name: ban.dataset.name }), body: t('ad.ban.body'), ok: t('ad.ban.ok'), danger: true });
     if (!ok) return;

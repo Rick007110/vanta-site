@@ -107,6 +107,7 @@ export default {
   'ad.err.invalid_fixed_in_version': 'That version number is not valid (e.g. 0.3.2).', 'ad.err.cannot_ban_admin': 'Admins cannot be banned.',
   'ad.err.user_not_found': 'That user has no Vanta profile.', 'ad.err.rate_limited': 'Too many requests, wait a moment.', 'ad.err.note_too_long': 'The note is too long (max 500).',
   'ad.err.name_too_long': 'The name is too long (max 120).', 'ad.err.invalid_discord_id': 'Invalid Discord id.',
+  'ad.err.stale': 'This entry changed in the meantime. The list has been reloaded.', 'ad.actfail': 'Action failed: {e}',
   'ad.setupcheck': 'Could not check admin access: {e}.', 'ad.signinfail': 'Sign-in failed: {e}', 'ad.startfail': 'Something went wrong while starting: {e}',
   'ad.ago.none': '—', 'ad.ago.now': 'just now', 'ad.ago.min': '{n} min ago', 'ad.ago.h': '{n} h ago', 'ad.ago.d': '{n} d ago',
   'ad.loadfail.rep': 'Could not load reports: {e}', 'ad.loadfail.req': 'Could not load requests: {e}', 'ad.loadfail.stats': 'Could not load stats: {e}',

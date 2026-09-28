@@ -92,6 +92,7 @@ export default {
   'ad.err.invalid_fixed_in_version': 'Dat versienummer is niet geldig (bijv. 0.3.2).', 'ad.err.cannot_ban_admin': 'Beheerders kunnen niet worden geblokkeerd.',
   'ad.err.user_not_found': 'Deze gebruiker heeft geen Vanta-profiel.', 'ad.err.rate_limited': 'Te veel verzoeken, wacht even.', 'ad.err.note_too_long': 'De notitie is te lang (max. 500).',
   'ad.err.name_too_long': 'De naam is te lang (max. 120).', 'ad.err.invalid_discord_id': 'Ongeldig Discord-id.',
+  'ad.err.stale': 'Dit item is intussen gewijzigd. De lijst is opnieuw geladen.', 'ad.actfail': 'Actie mislukt: {e}',
   'ad.setupcheck': 'Kon beheerderstoegang niet controleren: {e}.', 'ad.signinfail': 'Inloggen mislukt: {e}', 'ad.startfail': 'Er ging iets mis bij het starten: {e}',
   'ad.ago.none': '—', 'ad.ago.now': 'zojuist', 'ad.ago.min': '{n} min geleden', 'ad.ago.h': '{n} u geleden', 'ad.ago.d': '{n} d geleden',
   'ad.loadfail.rep': 'Kon meldingen niet laden: {e}', 'ad.loadfail.req': 'Kon aanvragen niet laden: {e}', 'ad.loadfail.stats': 'Kon statistieken niet laden: {e}',
