@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="no-referrer">
+  <title>Vanta · Admin</title>
+  <meta name="theme-color" content="#0A0C10">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/admin.css">
+  <script type="module" src="../assets/js/admin.js"></script>
+</head>
+<body>
+  <!-- loading -->
+  <section class="gate" data-view="loading">
+    <div class="gate-card card-surface"><div class="spinner" role="status" aria-label="Loading"></div></div>
+  </section>
+
+  <!-- signed out -->
+  <section class="gate" data-view="login" hidden>
+    <div class="gate-card card-surface">
+      <img class="gate-logo" src="../assets/img/logo.svg" alt="" width="52" height="52">
+      <h1>Vanta <span class="dim">Admin</span></h1>
+      <p class="muted">Sign in with the Discord account that manages Vanta. Everyone else is turned away.</p>
+      <button class="btn btn-discord btn-lg" type="button" data-action="login">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.32 4.37A19.8 19.8 0 0 0 15.4 2.9l-.23.46a18 18 0 0 1 4.4 2.12 15.7 15.7 0 0 0-15.14 0A18 18 0 0 1 8.83 3.36L8.6 2.9a19.8 19.8 0 0 0-4.92 1.47C.57 9.02-.27 13.56.15 18.03a19.9 19.9 0 0 0 6.03 3.04l.49-.66a13 13 0 0 1-2.1-1.01l.5-.39a14.2 14.2 0 0 0 13.86 0l.5.39c-.66.39-1.37.73-2.1 1.01l.49.66a19.9 19.9 0 0 0 6.03-3.04c.5-5.18-.84-9.68-3.53-13.66ZM8.02 15.3c-1.18 0-2.15-1.08-2.15-2.42 0-1.33.95-2.42 2.15-2.42s2.17 1.1 2.15 2.42c0 1.34-.95 2.42-2.15 2.42Zm7.96 0c-1.18 0-2.15-1.08-2.15-2.42 0-1.33.95-2.42 2.15-2.42s2.17 1.1 2.15 2.42c0 1.34-.95 2.42-2.15 2.42Z"/></svg>
+        <span>Continue with Discord</span>
+      </button>
+      <p class="gate-err" data-bind="login-error" role="alert" hidden></p>
+      <a class="gate-back" href="../">← Back to the site</a>
+    </div>
+  </section>
+
+  <!-- not an admin -->
+  <section class="gate" data-view="denied" hidden>
+    <div class="gate-card card-surface">
+      <div class="gate-ic err" aria-hidden="true">✕</div>
+      <h1>No access</h1>
+      <p class="muted">This Discord account is not an admin for Vanta. You have been signed out.</p>
+      <button class="btn" type="button" data-action="show-login">Use another account</button>
+      <a class="gate-back" href="../">← Back to the site</a>
+    </div>
+  </section>
+
+  <!-- backend not ready -->
+  <section class="gate" data-view="setup" hidden>
+    <div class="gate-card card-surface">
+      <div class="gate-ic warn" aria-hidden="true">!</div>
+      <h1>Database not ready</h1>
+      <p class="muted" data-bind="setup-msg">The admin functions were not found. Run <code>supabase-setup.sql</code> in the Supabase SQL editor and reload.</p>
+      <div class="gate-row"><button class="btn" type="button" data-action="reload">Reload</button><button class="btn btn-ghost" type="button" data-action="logout">Sign out</button></div>
+    </div>
+  </section>
+
+  <!-- dashboard -->
+  <div class="app" data-view="app" hidden>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="../"><img src="../assets/img/logo.svg" alt="" width="28" height="28">Vanta</a>
+        <span class="pill admin-pill">Admin</span>
+        <nav class="tabs" role="tablist" aria-label="Dashboard">
+          <button role="tab" type="button" id="tab-reports" data-tab="reports" aria-controls="panel-reports" aria-selected="true">Reports <span class="tab-badge" data-bind="open-count" hidden></span></button>
+          <button role="tab" type="button" id="tab-requests" data-tab="requests" aria-controls="panel-requests" aria-selected="false" tabindex="-1">Requests</button>
+          <button role="tab" type="button" id="tab-stats" data-tab="stats" aria-controls="panel-stats" aria-selected="false" tabindex="-1">Stats</button>
+        </nav>
+        <div class="me">
+          <span class="me-avatar" data-bind="me-avatar" aria-hidden="true"></span>
+          <span class="me-name" data-bind="me-name"></span>
+          <button class="btn btn-sm btn-ghost" type="button" data-action="logout">Sign out</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="panels">
+      <!-- Reports -->
+      <section class="panel" id="panel-reports" role="tabpanel" aria-labelledby="tab-reports" data-panel="reports">
+        <div class="panel-head">
+          <div><h2>Reports</h2><p class="muted">Highest priority first. Score weighs recent "doesn't work" reports, new game versions and how often a cheat is used.</p></div>
+          <div class="filters">
+            <label><span>Game</span><select data-filter="report-game"><option value="">All games</option></select></label>
+            <label><span>Status</span><select data-filter="report-status">
+              <option value="open" selected>Open</option><option value="closed">Closed</option><option value="all">All</option>
+              <option value="fixed">Fixed</option><option value="cant_reproduce">Won't fix / can't reproduce</option><option value="duplicate">Duplicate</option></select></label>
+            <label class="grow"><span>Search</span><input type="search" data-filter="report-q" placeholder="Cheat, game or note" autocomplete="off"></label>
+            <button class="btn btn-sm" type="button" data-action="refresh-reports" aria-label="Refresh reports">↻ Refresh</button>
+          </div>
+        </div>
+        <div class="list" data-list="reports" aria-live="polite"></div>
+      </section>
+
+      <!-- Requests -->
+      <section class="panel" id="panel-requests" role="tabpanel" aria-labelledby="tab-requests" data-panel="requests" hidden>
+        <div class="panel-head">
+          <div><h2>Game requests</h2><p class="muted">Most votes first. The note is shown to players in the app.</p></div>
+          <div class="filters">
+            <label><span>Status</span><select data-filter="request-status">
+              <option value="all">All</option><option value="active" selected>Active</option><option value="open">Open</option><option value="planned">Planned</option>
+              <option value="in_progress">In progress</option><option value="added">Added</option><option value="rejected">Rejected</option></select></label>
+            <label class="grow"><span>Search</span><input type="search" data-filter="request-q" placeholder="Game name or app id" autocomplete="off"></label>
+            <button class="btn btn-sm" type="button" data-action="refresh-requests" aria-label="Refresh requests">↻ Refresh</button>
+          </div>
+        </div>
+        <div class="list" data-list="requests" aria-live="polite"></div>
+      </section>
+
+      <!-- Stats -->
+      <section class="panel" id="panel-stats" role="tabpanel" aria-labelledby="tab-stats" data-panel="stats" hidden>
+        <div class="panel-head">
+          <div><h2>Stats</h2><p class="muted">Community activity at a glance.</p></div>
+          <div class="filters">
+            <label><span>Period</span><select data-filter="stats-days"><option value="7" selected>Last 7 days</option><option value="30">Last 30 days</option></select></label>
+            <button class="btn btn-sm" type="button" data-action="refresh-stats" aria-label="Refresh stats">↻ Refresh</button>
+          </div>
+        </div>
+        <div data-list="stats" aria-live="polite"></div>
+      </section>
+    </main>
+  </div>
+
+  <!-- confirm / input dialog -->
+  <dialog class="dlg" data-dialog closedby="any" aria-labelledby="dlg-title">
+    <form method="dialog">
+      <h3 id="dlg-title" data-bind="dlg-title"></h3>
+      <p class="muted" data-bind="dlg-body"></p>
+      <label class="dlg-field" data-bind="dlg-field" hidden><span data-bind="dlg-label"></span><input data-bind="dlg-input" autocomplete="off" spellcheck="false"></label>
+      <div class="dlg-actions">
+        <button class="btn btn-ghost" value="cancel" formnovalidate>Cancel</button>
+        <button class="btn btn-primary" value="ok" data-bind="dlg-ok">OK</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="toasts" data-toasts aria-live="polite"></div>
+</body>
+</html>

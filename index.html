@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vanta · Trainer for single-player games on Windows</title>
+  <meta name="description" content="Vanta is a free, standalone trainer for single-player Windows games. Its own memory engine, hand-tuned cheats per game, hotkeys, automatic updates and launcher detection. No Cheat Engine needed.">
+  <meta name="theme-color" content="#0A0C10">
+  <meta property="og:title" content="Vanta · Trainer for single-player games">
+  <meta property="og:description" content="Free, standalone and open source. Toggle cheats in your single-player games with one click.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/fonts/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preconnect" href="https://api.github.com" crossorigin>
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/site.css">
+  <script type="module" src="assets/js/site.js"></script>
+</head>
+<body>
+  <!-- stroke icons, same drawings as the app -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></symbol>
+      <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-9-9.4A4.8 4.8 0 0 1 12 7a4.8 4.8 0 0 1 9 3.6C19.5 15.4 12 20 12 20z"/></symbol>
+      <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2.5 4.5 13.5H11l-1 8 8.5-11H12z"/></symbol>
+      <symbol id="i-jump" viewBox="0 0 24 24"><path d="M12 19.5V5M6.5 10.5 12 5l5.5 5.5"/><path d="M5 20h14"/></symbol>
+      <symbol id="i-ammo" viewBox="0 0 24 24"><path d="M7 20.5V10l2-5.5 2 5.5v10.5zM13 20.5V10l2-5.5 2 5.5v10.5z"/></symbol>
+      <symbol id="i-coin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M14.8 9.2A3 3 0 0 0 12 7.8c-1.7 0-3 .9-3 2.1 0 2.8 6 1.4 6 4.2 0 1.2-1.3 2.1-3 2.1a3 3 0 0 1-2.8-1.4M12 6v1.8M12 16.2V18"/></symbol>
+      <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+      <symbol id="i-speed" viewBox="0 0 24 24"><path d="M4 16a8 8 0 1 1 16 0"/><path d="m12 16 4-5"/></symbol>
+      <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/></symbol>
+      <symbol id="i-cube" viewBox="0 0 24 24"><path d="M12 2.8 3.5 7.4v9.2l8.5 4.6 8.5-4.6V7.4z"/><path d="M3.5 7.4 12 12l8.5-4.6M12 12v9.2"/></symbol>
+      <symbol id="i-map" viewBox="0 0 24 24"><path d="M3.5 6.5 9 4l6 2.5L20.5 4v13.5L15 20l-6-2.5-5.5 2.5z"/><path d="M9 4v13.5M15 6.5V20"/></symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5.5v13M5.5 12h13"/></symbol>
+      <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5.5 12h13"/></symbol>
+      <symbol id="i-unlink" viewBox="0 0 24 24"><path d="M9 5.5 10 4.6a4.5 4.5 0 0 1 6.4 6.4L15.5 12M8.5 12 7.6 13a4.5 4.5 0 0 0 6.4 6.4l1-1"/><path d="M4 4l16 16"/></symbol>
+      <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9M4 12h16"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></symbol>
+      <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.3-4.9L4 8M4 4v4h4M4 13a8 8 0 0 0 14.3 4.9L20 16M20 20v-4h-4"/></symbol>
+      <symbol id="i-keyboard" viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2.5"/><path d="M6.5 10h.01M10 10h.01M14 10h.01M17.5 10h.01M7.5 14h9"/></symbol>
+      <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 4.5 6v5.5c0 4.6 3.2 8.2 7.5 9.5 4.3-1.3 7.5-4.9 7.5-9.5V6z"/><path d="m9 12 2 2 4-4"/></symbol>
+      <symbol id="i-list" viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h7"/><circle cx="18" cy="16" r="3"/></symbol>
+      <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 11a3 3 0 1 0 0-6M21 20c0-2.6-1.6-4.8-4-5.6"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+      <symbol id="i-x" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></symbol>
+      <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 4.2 2.6 17.5A2 2 0 0 0 4.3 20.5h15.4a2 2 0 0 0 1.7-3L13.7 4.2a2 2 0 0 0-3.4 0z"/><path d="M12 9.5v4M12 17h.01"/></symbol>
+      <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m0 0-4.5-4.5M12 15l4.5-4.5M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></symbol>
+      <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M10 3.5 11.6 8.4 16.5 10 11.6 11.6 10 16.5 8.4 11.6 3.5 10 8.4 8.4z"/><path d="M18 14.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/></symbol>
+    </defs>
+  </svg>
+  <a class="skip sr-only" href="#main">Skip to content</a>
+
+  <header class="nav" data-nav>
+    <div class="wrap nav-inner">
+      <a class="brand" href="#top" aria-label="Vanta home"><img src="assets/img/logo.svg" alt="" width="26" height="26">Vanta</a>
+      <nav class="nav-links" aria-label="Sections">
+        <a href="#features">Features</a>
+        <a href="#games">Games</a>
+        <a href="#safety">Safety</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+      <div class="nav-cta">
+        <a class="icon-link" href="https://github.com/Rick007110/Vanta" rel="noopener" aria-label="Vanta on GitHub"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.33-1.28-1.69-1.28-1.69-1.05-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.26 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5Z"/></svg></a>
+        <a class="btn btn-primary btn-sm" href="https://github.com/Rick007110/Vanta/releases/latest" data-download>Download</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- ============================== HERO ============================== -->
+    <section class="hero" id="top">
+      <div class="wrap hero-copy fade">
+        <a class="pill hero-pill" href="https://github.com/Rick007110/Vanta/releases/latest" data-release-link rel="noopener">
+          <span class="dot" aria-hidden="true"></span><span>Latest release <b data-version>v0.3.1</b></span><span class="pill-sep" aria-hidden="true"></span><span>Windows 10 &amp; 11</span>
+        </a>
+        <h1 class="hero-title"><span class="nb">Single&#8209;player,</span> <span class="dim">your rules.</span></h1>
+        <p class="hero-lead">Vanta is a free, standalone trainer for Windows games. Pick your game, flip a switch, keep playing. No Cheat Engine, no installer, no account.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary btn-lg" href="https://github.com/Rick007110/Vanta/releases/latest" data-download data-primary-download>
+            <svg class="ic" aria-hidden="true"><use href="#i-download"/></svg>
+            <span>Download <span data-version>v0.3.1</span></span>
+          </a>
+          <a class="btn btn-lg" href="https://github.com/Rick007110/Vanta" rel="noopener">View source</a>
+        </div>
+        <p class="hero-meta"><span data-size>Portable .zip</span><span aria-hidden="true">·</span><span>Free &amp; open source (MIT)</span><span aria-hidden="true">·</span><a href="https://github.com/Rick007110/Vanta/releases/latest" data-sha rel="noopener">SHA-256</a></p>
+      </div>
+
+      <!-- static mockup of the app window -->
+      <div class="wrap hero-shot fade fade-2" aria-hidden="true">
+        <div class="win">
+          <aside class="w-side">
+            <div class="w-brand"><img src="assets/img/logo.svg" alt="" width="22" height="22"><b>Vanta</b><span class="w-tag">v0.3</span></div>
+            <div class="w-search"><svg class="ic"><use href="#i-search"/></svg><span>Search games</span><span class="w-kbd">Ctrl K</span></div>
+            <div class="w-libhead"><span>Installed</span><span class="mono">3</span></div>
+            <div class="w-lib is-sel"><i class="w-cov c1"></i><span><b>Your game</b><em><i class="w-dot"></i>Steam · 1.4.2</em></span></div>
+            <div class="w-lib"><i class="w-cov c2"></i><span><b>Colony builder</b><em>Epic Games · 2.0.1</em></span></div>
+            <div class="w-lib"><i class="w-cov c3"></i><span><b>Open-world RPG</b><em>GOG · 1.12</em></span></div>
+            <div class="w-libhead"><span>All games</span><span class="mono">12</span></div>
+            <div class="w-lib is-dim"><i class="w-cov c4"></i><span><b>Survival sandbox</b><em>Not installed</em></span></div>
+            <div class="w-lib is-dim"><i class="w-cov c5"></i><span><b>Space shooter</b><em>Not installed</em></span></div>
+            <div class="w-foot"><span class="w-req"><svg class="ic"><use href="#i-plus"/></svg>Request a game</span></div>
+          </aside>
+          <div class="w-main">
+            <div class="w-hero">
+              <i class="w-cover"></i>
+              <div class="w-info">
+                <span class="w-eyebrow">Steam · Single-player</span>
+                <b class="w-title">Your game</b>
+                <div class="w-meta"><span class="w-pill"><i></i>Attached</span><span class="w-ver">Version <span class="w-v">1.4.2</span></span></div>
+              </div>
+              <div class="w-actions"><span class="w-btn"><svg class="ic"><use href="#i-unlink"/></svg>Detach</span><span class="w-icbtn"><svg class="ic"><use href="#i-settings"/></svg></span></div>
+            </div>
+            <div class="w-toolbar">
+              <div class="w-tabs"><span class="is-on">Cheats</span><span>Hotkeys</span><span>Notes</span></div>
+              <div class="w-tright"><span class="w-active"><i></i>4 active</span><span class="w-ghost">Turn all off</span></div>
+            </div>
+            <div class="w-cheats">
+              <div class="w-col">
+                <div class="w-sec">
+                  <div class="w-sechead"><svg class="ic"><use href="#i-user"/></svg><b>Player</b><span class="count">2/3</span></div>
+                  <div class="w-row on"><span class="w-ric"><svg class="ic"><use href="#i-heart"/></svg></span><span class="w-name">Infinite health</span><span class="kbd">F1</span><i class="w-sw"></i></div>
+                  <div class="w-row on"><span class="w-ric"><svg class="ic"><use href="#i-bolt"/></svg></span><span class="w-name">Infinite stamina</span><span class="kbd">F2</span><i class="w-sw"></i></div>
+                  <div class="w-row"><span class="w-ric"><svg class="ic"><use href="#i-jump"/></svg></span><span class="w-name">Super jump</span><span class="kbd">F3</span><i class="w-sw"></i></div>
+                </div>
+                <div class="w-sec">
+                  <div class="w-sechead"><svg class="ic"><use href="#i-map"/></svg><b>World</b><span class="count">1/2</span></div>
+                  <div class="w-row on"><span class="w-ric"><svg class="ic"><use href="#i-clock"/></svg></span><span class="w-name">Freeze time of day</span><span class="kbd">Ctrl<i>+</i>T</span><i class="w-sw"></i></div>
+                  <div class="w-row"><span class="w-ric"><svg class="ic"><use href="#i-speed"/></svg></span><span class="w-name">Game speed</span><span class="w-slider"><i></i></span><span class="w-out">1.5×</span></div>
+                </div>
+              </div>
+              <div class="w-col">
+                <div class="w-sec">
+                  <div class="w-sechead"><svg class="ic"><use href="#i-cube"/></svg><b>Inventory</b><span class="count">1/3</span></div>
+                  <div class="w-row on"><span class="w-ric"><svg class="ic"><use href="#i-ammo"/></svg></span><span class="w-name">Unlimited ammo</span><span class="kbd">F5</span><i class="w-sw"></i></div>
+                  <div class="w-row"><span class="w-ric"><svg class="ic"><use href="#i-refresh"/></svg></span><span class="w-name">No reload</span><span class="kbd">F6</span><i class="w-sw"></i></div>
+                  <div class="w-row"><span class="w-ric"><svg class="ic"><use href="#i-coin"/></svg></span><span class="w-name">Money<small>Adds to your current balance</small></span><span class="w-step"><i><svg class="ic"><use href="#i-minus"/></svg></i><b>10,000</b><i><svg class="ic"><use href="#i-plus"/></svg></i></span></div>
+                </div>
+                <div class="w-sec w-sec-note">
+                  <div class="w-sechead"><svg class="ic"><use href="#i-shield"/></svg><b>Version check</b><span class="count ok">OK</span></div>
+                  <p>Build 1.4.2 recognised. Every cheat for this build found its code exactly once.</p>
+                </div>
+              </div>
+            </div>
+            <div class="w-status"><i class="dot"></i><span>Engine ready</span><span class="w-sep"></span><span class="mono">22:07</span><span class="w-log">Infinite stamina turned on</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== ABOUT ============================== -->
+    <section class="about" id="about">
+      <div class="wrap">
+        <p class="eyebrow reveal">What is Vanta</p>
+        <p class="statement reveal">A trainer that feels like a <span class="hl">launcher</span>, not a hacking tool. <span class="dim">Vanta finds your games, attaches when they start and gives you a clean list of cheats written for your exact game version.</span></p>
+      </div>
+    </section>
+
+    <!-- ============================== FEATURES ============================== -->
+    <section class="features" id="features">
+      <div class="wrap">
+        <header class="section-head reveal">
+          <p class="eyebrow">Features <span class="count">7</span></p>
+          <h2>Everything you need. <span class="dim">Nothing you don't.</span></h2>
+        </header>
+
+        <div class="bento">
+          <article class="card card-surface card-xl reveal">
+            <div class="card-art engine" aria-hidden="true">
+              <div class="term-head"><span>Memory engine</span><span class="count">1/1</span></div>
+              <code><span class="t3">aob</span> 48 8B 05 ?? ?? ?? ?? 89 88 <b>F0 00 00 00</b></code>
+              <code><span class="t3">scan</span> match <b>1/1</b> · patched</code>
+              <code><span class="t3">off</span> original bytes restored <span class="okc">✓</span></code>
+            </div>
+            <div class="card-ic on" aria-hidden="true"><svg class="ic"><use href="#i-cube"/></svg></div>
+            <h3>Its own memory engine</h3>
+            <p>No Cheat Engine underneath. Every cheat looks for its code with a byte pattern that must match exactly once, otherwise Vanta writes nothing. Turn a cheat off, detach or close Vanta and every byte goes back exactly as it was.</p>
+          </article>
+          <article class="card card-surface reveal">
+            <div class="card-ic" aria-hidden="true"><svg class="ic"><use href="#i-list"/></svg></div>
+            <h3>Cheats per game</h3>
+            <p>Each game gets its own hand-tuned set: toggles, sliders, multipliers and one-shot buttons, grouped and named in plain language.</p>
+          </article>
+          <article class="card card-surface reveal">
+            <div class="card-ic" aria-hidden="true"><svg class="ic"><use href="#i-keyboard"/></svg></div>
+            <h3>Hotkeys <span class="keys" aria-hidden="true"><span class="kbd">Ctrl</span><span class="kbd">F1</span></span></h3>
+            <p>Toggle cheats without leaving the game. Every hotkey can be rebound, cleared or reset per game.</p>
+          </article>
+          <article class="card card-surface reveal">
+            <div class="card-ic" aria-hidden="true"><svg class="ic"><use href="#i-refresh"/></svg></div>
+            <h3>Automatic updates</h3>
+            <p>New versions arrive from GitHub while you use the app, verified with SHA-256, with a backup and automatic rollback if something goes wrong.</p>
+          </article>
+          <article class="card card-surface reveal">
+            <div class="card-ic" aria-hidden="true"><svg class="ic"><use href="#i-shield"/></svg></div>
+            <h3>Version checks</h3>
+            <p>Vanta fingerprints your game build before touching it. A game patch it doesn't know yet? You'll see it right away instead of a crash.</p>
+          </article>
+          <article class="card card-surface reveal">
+            <div class="card-ic" aria-hidden="true"><svg class="ic"><use href="#i-users"/></svg></div>
+            <h3>Community reports</h3>
+            <p>Optionally sign in with Discord to report whether a cheat works in your version, and see what other players found. Never required.</p>
+          </article>
+          <article class="card card-surface card-wide reveal">
+            <div class="card-copy">
+              <h3>Finds your games, wherever you bought them</h3>
+              <p>Vanta detects installs from every major launcher and starts the game through the right one, so DRM and overlays keep working.</p>
+            </div>
+            <ul class="stores" aria-label="Supported launchers">
+              <li>Steam</li><li>Ubisoft Connect</li><li>Epic Games</li><li>GOG</li><li>EA app</li><li>Xbox</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== GAMES ============================== -->
+    <section class="games" id="games">
+      <div class="wrap games-inner card-surface reveal">
+        <div class="games-count" aria-live="polite">
+          <span class="big-num" data-game-count>3</span>
+        </div>
+        <div class="games-copy">
+          <p class="eyebrow">Library</p>
+          <h2><span data-game-word>games</span> supported, <span class="dim">and more on their way.</span></h2>
+          <p class="muted">Currently <b data-cheat-count>52</b> cheats, each one written for a specific game build. Missing your favourite? Request it inside Vanta and vote for the games you want next.</p>
+        </div>
+      </div>
+      <div class="wrap requests" data-requests hidden>
+        <div class="req-box card-surface reveal">
+          <div class="req-head"><p class="eyebrow">Most requested right now</p></div>
+          <ol class="req-strip" data-requests-list></ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== HOW ============================== -->
+    <section class="how">
+      <div class="wrap">
+        <header class="section-head reveal">
+          <p class="eyebrow">Get started</p>
+          <h2>Up and running in <span class="dim">a minute.</span></h2>
+        </header>
+        <ol class="steps">
+          <li class="step card-surface reveal"><span class="step-n kbd">01</span><h3>Download &amp; unzip</h3><p>Extract the zip to its own folder, for example <code>C:\Games\Vanta</code>. Nothing to install; .NET is built in.</p></li>
+          <li class="step card-surface reveal"><span class="step-n kbd">02</span><h3>Start your game</h3><p>Open <code>Vanta.exe</code>, pick a game and hit Start. Vanta launches it through your launcher and attaches automatically.</p></li>
+          <li class="step card-surface reveal"><span class="step-n kbd">03</span><h3>Flip the switches</h3><p>Turn cheats on in the app or with hotkeys. Close Vanta and your game is back to normal.</p></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ============================== SAFETY ============================== -->
+    <section class="safety" id="safety">
+      <div class="wrap safety-inner">
+        <header class="safety-head">
+          <p class="eyebrow reveal">Single-player only</p>
+          <h2 class="reveal">Built for playing alone. <span class="dim">On purpose.</span></h2>
+          <p class="fineprint reveal">Cheats can still cause crashes or odd saves. Keep a backup of saves you care about.</p>
+        </header>
+        <div class="checks-box card-surface reveal">
+          <div class="box-head"><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg><b>Safety rules</b><span class="count">4/4</span></div>
+          <ul class="checks">
+            <li><span class="ck" aria-hidden="true"><svg class="ic"><use href="#i-check"/></svg></span><span><b>Games with online anti-cheat are refused.</b> If Vanta finds anti-cheat files, it won't attach. Period.</span></li>
+            <li><span class="ck" aria-hidden="true"><svg class="ic"><use href="#i-check"/></svg></span><span><b>No multiplayer, no co-op.</b> Use cheats in your own offline or solo campaign, never against or alongside other people.</span></li>
+            <li><span class="ck" aria-hidden="true"><svg class="ic"><use href="#i-check"/></svg></span><span><b>Nothing permanent.</b> Vanta patches game memory while it runs and restores it when you stop. Your game files are never modified.</span></li>
+            <li><span class="ck" aria-hidden="true"><svg class="ic"><use href="#i-check"/></svg></span><span><b>Open source.</b> Every line is on GitHub. The exe isn't code-signed, so Windows SmartScreen may ask you to confirm the first start.</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== FAQ ============================== -->
+    <section class="faq" id="faq">
+      <div class="wrap faq-inner">
+        <header class="section-head reveal">
+          <p class="eyebrow">FAQ</p>
+          <h2>Questions, <span class="dim">answered.</span></h2>
+        </header>
+        <div class="faq-list card-surface reveal">
+          <details class="qa" name="faq" open>
+            <summary>Is Vanta free?</summary>
+            <p>Yes. Vanta is free and open source under the MIT license. There are no ads, no accounts and no paid tiers.</p>
+          </details>
+          <details class="qa" name="faq">
+            <summary>Do I need Cheat Engine?</summary>
+            <p>No. Vanta has its own memory engine and runs on its own. Just download, unzip and start <code>Vanta.exe</code>.</p>
+          </details>
+          <details class="qa" name="faq">
+            <summary>Can I get banned?</summary>
+            <p>Vanta only supports single-player games and refuses games with online anti-cheat. Don't use it online or in co-op. That's both the rule and the safest way to play.</p>
+          </details>
+          <details class="qa" name="faq">
+            <summary>Windows says the file might be unsafe. Why?</summary>
+            <p>The exe isn't code-signed, which makes SmartScreen cautious about any new download. Click <i>More info</i> and then <i>Run anyway</i>. You can compare the zip with the published SHA-256 checksum, and the full source is on GitHub.</p>
+          </details>
+          <details class="qa" name="faq">
+            <summary>My game updated and a cheat stopped working.</summary>
+            <p>Vanta checks the game version and tells you when it doesn't recognise a build. Updated cheats arrive automatically with new Vanta releases. You can also report it from the app so it gets picked up faster.</p>
+          </details>
+          <details class="qa" name="faq">
+            <summary>Which games are supported?</summary>
+            <p>The current list is always inside the app. New games are added regularly, and you can request and vote for the next ones from Vanta itself.</p>
+          </details>
+          <details class="qa" name="faq">
+            <summary>What do I need to run it?</summary>
+            <p>Windows 10 or 11 (64-bit) with the Microsoft Edge WebView2 Runtime, which comes with Windows 11 and most Windows 10 installs.</p>
+          </details>
+          <details class="qa" name="faq">
+            <summary>Does Vanta collect data?</summary>
+            <p>Not unless you choose to. Signing in with Discord for community reports and sharing anonymous usage counts are both optional and off by default. See the <a href="https://github.com/Rick007110/Vanta/blob/main/docs/privacy.md" rel="noopener">privacy notes</a>.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== CTA ============================== -->
+    <section class="cta">
+      <div class="wrap cta-inner card-surface reveal">
+        <img src="assets/img/logo.svg" alt="" width="52" height="52">
+        <h2>Ready when <span class="dim">you are.</span></h2>
+        <p class="muted">One zip. No installer. Your single-player games, your rules.</p>
+        <a class="btn btn-primary btn-lg" href="https://github.com/Rick007110/Vanta/releases/latest" data-download>
+          <svg class="ic" aria-hidden="true"><use href="#i-download"/></svg>
+          <span>Download <span data-version>v0.3.1</span></span>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-inner">
+      <a class="brand" href="#top"><img src="assets/img/logo.svg" alt="" width="22" height="22">Vanta</a>
+      <nav class="footer-links" aria-label="Footer">
+        <a href="https://github.com/Rick007110/Vanta" rel="noopener">GitHub</a>
+        <a href="https://github.com/Rick007110/Vanta/releases" rel="noopener">Releases</a>
+        <a href="https://github.com/Rick007110/Vanta/blob/main/docs/privacy.md" rel="noopener">Privacy</a>
+        <a href="https://github.com/Rick007110/Vanta/blob/main/LICENSE" rel="noopener">MIT License</a>
+      </nav>
+      <p class="footer-note">© 2026 Rick007110 · Not affiliated with any game publisher or store. For single-player use only.</p>
+    </div>
+  </footer>
+</body>
+</html>
