@@ -13,7 +13,7 @@ export default {
   'foot.nav': 'Footer', 'foot.product': 'Product', 'foot.project': 'Project', 'foot.legal': 'Juridisch',
   'foot.download': 'Download', 'foot.notes': 'Release-opmerkingen', 'foot.faq': 'FAQ', 'foot.source': 'Broncode', 'foot.issue': 'Probleem melden',
   'foot.license': 'MIT-licentie', 'foot.privacy': 'Privacy', 'foot.fair': 'Eerlijk gebruik',
-  'foot.note': 'Alleen voor offline singleplayer-gebruik. Niet verbonden aan een gamemaker of winkel.',
+  'foot.note': 'Alleen voor offline singleplayer-gebruik. Vanta is niet verbonden aan of goedgekeurd door een gamemaker. Alle handelsmerken zijn eigendom van hun respectievelijke eigenaren.',
 
   'hero.new': 'Nieuw', 'hero.out': 'is uit',
   'hero.l1': 'Buig de regels van', 'hero.l2': 'je singleplayer-games.',

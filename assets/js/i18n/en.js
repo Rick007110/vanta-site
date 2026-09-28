@@ -14,7 +14,7 @@ export default {
   'foot.nav': 'Footer', 'foot.product': 'Product', 'foot.project': 'Project', 'foot.legal': 'Legal',
   'foot.download': 'Download', 'foot.notes': 'Release notes', 'foot.faq': 'FAQ', 'foot.source': 'Source code', 'foot.issue': 'Report an issue',
   'foot.license': 'MIT License', 'foot.privacy': 'Privacy', 'foot.fair': 'Fair use',
-  'foot.note': 'For offline singleplayer use only. Not affiliated with any game publisher or store.',
+  'foot.note': 'For offline singleplayer use only. Vanta is not affiliated with or endorsed by any game publisher. All trademarks belong to their respective owners.',
 
   // landing: hero
   'hero.new': 'New', 'hero.out': 'is out',
