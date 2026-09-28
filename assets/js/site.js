@@ -29,7 +29,7 @@ function renderSize() {
 async function release() {
   const root = document.documentElement;
   try {
-    const r = await cachedJson('vanta-release', `https://api.github.com/repos/${REPO}/releases/latest`, 10 * 60e3,
+    const r = await cachedJson('vanta-release-v2', `https://api.github.com/repos/${REPO}/releases/latest`, 2 * 60e3,
       { headers: { Accept: 'application/vnd.github+json' } });
     const assets = r.assets || [];
     const zip = assets.find((a) => /^Vanta-v[\w.+-]+\.zip$/i.test(a.name));
@@ -58,7 +58,7 @@ async function games() {
   if (!numEl) return;
   let target = Number(numEl.textContent) || 0, cheats = null;
   try {
-    const idx = await cachedJson('vanta-games', `https://raw.githubusercontent.com/${REPO}/main/games/index.json`, 30 * 60e3);
+    const idx = await cachedJson('vanta-games-v2', `https://raw.githubusercontent.com/${REPO}/main/games/index.json`, 5 * 60e3);
     const list = (idx.games || []).filter((g) => !g.antiCheat && !g.onlineOnly);
     if (list.length) {
       target = list.length;
